@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SchoolSphere - Login</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root{
+    --gold:#ffd700;
+    --error:#ff4d4d;
+}
+
+body{
+    margin:0;
+    font-family:sans-serif;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    width:90%;
+    max-width:400px;
+    background:rgba(0,0,0,0.3);
+    padding:25px;
+    border-radius:20px;
+    text-align:center;
+}
+
+h1{color:var(--gold);}
+
+input{
+    width:90%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:25px;
+    border:2px solid var(--gold);
+    background:transparent;
+    color:white;
+    text-align:center;
+}
+
+.role-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:10px;
+}
+
+.role{
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    font-weight:bold;
+    color:white;
+}
+
+.owner{background:#6a11cb;grid-column:span 2;}
+.principal{background:#2575fc;}
+.teacher{background:#11998e;}
+.accountant{background:#f2994a;}
+.driver{background:#f093fb;}
+.parent{background:#373b44;grid-column:span 2;}
+
+#error{color:var(--error);margin-top:10px;}
+#loader{display:none;margin-top:10px;}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>SchoolSphere</h1>
+
+<input type="text" id="school" placeholder="School ID">
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="pass" placeholder="Password">
+
+<div id="error"></div>
+<div id="loader">⏳ Checking...</div>
+
+<div class="role-grid">
+<button class="role owner" onclick="login('owner')">Owner</button>
+<button class="role principal" onclick="login('principal')">Principal</button>
+<button class="role teacher" onclick="login('teacher')">Teacher</button>
+<button class="role accountant" onclick="login('accountant')">Accountant</button>
+<button class="role driver" onclick="login('driver')">Driver</button>
+<button class="role parent" onclick="login('parent')">Parent</button>
+</div>
+
+</div>
+
+<script>
+
+// 🔥 FIREBASE CONFIG
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_DOMAIN",
+    databaseURL: "YOUR_DB_URL",
+    projectId: "YOUR_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🔠 AUTO UPPERCASE
+document.getElementById("school").addEventListener("input",function(){
+    this.value = this.value.toUpperCase();
+});
+
+// 🚀 LOGIN FUNCTION
+async function login(role){
+
+    const school = document.getElementById("school").value.trim();
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("pass").value;
+    const error = document.getElementById("error");
+    const loader = document.getElementById("loader");
+
+    if(!navigator.onLine){
+        return error.innerText="📡 No Internet";
+    }
+
+    if(!school || !email || !pass){
+        return error.innerText="Fill all fields";
+    }
+
+    error.innerText="";
+    loader.style.display="block";
+
+    try{
+        const userCred = await firebase.auth().signInWithEmailAndPassword(email, pass);
+        const uid = userCred.user.uid;
+
+        // 🔒 OWNER CHECK
+        const snap = await db.ref("schools/"+school+"/ownerId").once("value");
+
+        if(role==="owner" && snap.val()!==uid){
+            loader.style.display="none";
+            return error.innerText="Not Owner of this school";
+        }
+
+        // 👉 save session
+        localStorage.setItem("school", school);
+        localStorage.setItem("role", role);
+
+        // 🔄 redirect
+        window.location.href = role + "_dashboard.html";
+
+    }catch(e){
+        error.innerText="Login Failed";
+        console.error(e);
+    }
+
+    loader.style.display="none";
+}
+
+</script>
+
+</body>
+</html>
