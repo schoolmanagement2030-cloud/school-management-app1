@@ -27,24 +27,24 @@ jobs:
         with:
           channel: 'stable'
 
+      # यह स्टेप एंड्रॉइड फोल्डर की कमी को दूर करेगा
+      - name: Fix Android Project Structure
+        run: flutter create . --platforms android,web
+
       - name: Get Dependencies
         run: flutter pub get
 
-      # --- APK बनाने का स्टेप ---
+      # अब APK बनेगा बिना किसी एरर के
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
-      # --- APK को डाउनलोड के लिए उपलब्ध कराना ---
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SchoolSphere-APK
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      # --- वेब डिप्लॉयमेंट (जो पहले से था) ---
-      - name: Configure Web Support
-        run: flutter create . --platforms web
-
+      # वेब डिप्लॉयमेंट (ताकि वेबसाइट भी चलती रहे)
       - name: Build Web
         run: flutter build web --base-href "/school-management-app1/"
 
