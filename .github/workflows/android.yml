@@ -1,45 +1,46 @@
-name: Build Android APK
+name: SchoolSphere Auto Deploy
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - main  # जब भी आप main branch में Push करेंगे, ये अपने आप चलेगा
+
+permissions:
+  contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # 1. कोड को GitHub से चेकआउट करना
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      # 2. Java सेटअप करना
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Flutter
+      # 3. Flutter सेटअप करना
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'any'
+          channel: 'stable'
 
-      - name: Install dependencies
+      # 4. डिपेंडेंसीज डाउनलोड करना
+      - name: Get Dependencies
         run: flutter pub get
 
-      # यहाँ से सुधार शुरू होता है (gradlew को परमिशन देना)
-      - name: Make gradlew executable
-        run: chmod +x gradlew
-        working-directory: android
+      # 5. Web के लिए बिल्ड करना (आपकी लिंक यहाँ डाली गई है)
+      - name: Build Web
+        run: flutter build web --base-href "/school-management-app1/"
 
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      # 6. ऑटोमैटिक 'gh-pages' ब्रांच पर डिप्लॉय करना
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          folder: build/web
+          branch: gh-pages
