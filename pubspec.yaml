@@ -7,6 +7,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  webview_flutter: ^4.4.2  # यह लाइन जोड़ें
+    sdk: flutter
   cupertino_icons: ^1.0.2
 dev_dependencies:
   flutter_test:
