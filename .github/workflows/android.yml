@@ -1,34 +1,31 @@
-name: SchoolSphere Auto Deploy
+name: Build APK
 
 on:
   push:
-    branches:
-      - main
-
-permissions:
-  contents: write
+    branches: [ "main" ]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Code download
+      uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
+    - name: Java setup
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-      - name: Get Dependencies
-        run: flutter pub get
+    - name: Permission do
+      run: chmod +x gradlew
 
-      - name: Build Web
-        run: flutter build web --base-href "/school-management-app1/"
+    - name: APK build karo
+      run: ./gradlew assembleDebug
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: build/web
-          branch: gh-pages
+    - name: APK upload karo
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-app
+        path: app/build/outputs/apk/debug/app-debug.apk
