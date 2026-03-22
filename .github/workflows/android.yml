@@ -27,11 +27,18 @@ jobs:
         with:
           channel: 'stable'
 
-      # यह स्टेप इंटरनेट की अनुमति के साथ एंड्रॉइड प्रोजेक्ट बनाएगा
-      - name: Create Android Structure with Permissions
+      # प्रोजेक्ट सेटअप और इंटरनेट परमिशन
+      - name: Create Project Structure
         run: |
           flutter create . --platforms android,web
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' android/app/src/main/AndroidManifest.xml
+
+      # सबसे जरूरी स्टेप: आपकी HTML फाइलों को सही जगह (web फोल्डर) में डालना
+      - name: Sync Your HTML Files
+        run: |
+          cp index.html web/index.html || true
+          cp owner.html web/owner.html || true
+          cp Owner.html web/owner.html || true
 
       - name: Get Dependencies
         run: flutter pub get
@@ -52,4 +59,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
-          branch: gh-pages
+          branch: main
