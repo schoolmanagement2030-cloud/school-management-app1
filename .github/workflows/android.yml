@@ -27,14 +27,15 @@ jobs:
         with:
           channel: 'stable'
 
-      # यह स्टेप एंड्रॉइड फोल्डर की कमी को दूर करेगा
-      - name: Fix Android Project Structure
-        run: flutter create . --platforms android,web
+      # यह स्टेप इंटरनेट की अनुमति के साथ एंड्रॉइड प्रोजेक्ट बनाएगा
+      - name: Create Android Structure with Permissions
+        run: |
+          flutter create . --platforms android,web
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' android/app/src/main/AndroidManifest.xml
 
       - name: Get Dependencies
         run: flutter pub get
 
-      # अब APK बनेगा बिना किसी एरर के
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
@@ -44,7 +45,6 @@ jobs:
           name: SchoolSphere-APK
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      # वेब डिप्लॉयमेंट (ताकि वेबसाइट भी चलती रहे)
       - name: Build Web
         run: flutter build web --base-href "/school-management-app1/"
 
