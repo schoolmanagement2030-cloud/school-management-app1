@@ -1,4 +1,4 @@
-name: SchoolSphere Auto Deploy
+name: SchoolSphere Auto Deploy & APK
 
 on:
   push:
@@ -16,6 +16,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -24,7 +30,18 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
-      # यह स्टेप सबसे जरूरी है, इसे ध्यान से देखें
+      # --- APK बनाने का स्टेप ---
+      - name: Build APK
+        run: flutter build apk --release
+
+      # --- APK को डाउनलोड के लिए उपलब्ध कराना ---
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SchoolSphere-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      # --- वेब डिप्लॉयमेंट (जो पहले से था) ---
       - name: Configure Web Support
         run: flutter create . --platforms web
 
