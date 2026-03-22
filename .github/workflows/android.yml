@@ -3,7 +3,7 @@ name: SchoolSphere Auto Deploy
 on:
   push:
     branches:
-      - main  # जब भी आप main branch में Push करेंगे, ये अपने आप चलेगा
+      - main
 
 permissions:
   contents: write
@@ -13,34 +13,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. कोड को GitHub से चेकआउट करना
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Java सेटअप करना
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # 3. Flutter सेटअप करना
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      # 4. डिपेंडेंसीज डाउनलोड करना
+      # यहाँ हमने बताया है कि Flutter प्रोजेक्ट 'app/src/main' के अंदर है
       - name: Get Dependencies
         run: flutter pub get
+        working-directory: app/src/main 
 
-      # 5. Web के लिए बिल्ड करना (आपकी लिंक यहाँ डाली गई है)
       - name: Build Web
         run: flutter build web --base-href "/school-management-app1/"
+        working-directory: app/src/main
 
-      # 6. ऑटोमैटिक 'gh-pages' ब्रांच पर डिप्लॉय करना
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: build/web
+          folder: app/src/main/build/web # बिल्ड फोल्डर का सही रास्ता
           branch: gh-pages
