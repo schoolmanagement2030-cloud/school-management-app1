@@ -33,12 +33,15 @@ jobs:
           flutter create . --platforms android,web
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' android/app/src/main/AndroidManifest.xml
 
-      # सबसे जरूरी स्टेप: आपकी HTML फाइलों को सही जगह (web फोल्डर) में डालना
+      # आपकी HTML फाइलों को सही जगह (web फोल्डर) में डालना और बेस-लिंक ठीक करना
       - name: Sync Your HTML Files
         run: |
+          mkdir -p web
           cp index.html web/index.html || true
           cp owner.html web/owner.html || true
           cp Owner.html web/owner.html || true
+          # बेस-लिंक को आटोमेटिक ठीक करना ताकि एरर न आए
+          sed -i 's|<base href=".*">|<base href="/school-management-app1/">|g' web/index.html || true
 
       - name: Get Dependencies
         run: flutter pub get
@@ -59,4 +62,4 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
-          branch: main
+          branch: gh-pages
