@@ -27,25 +27,16 @@ jobs:
         with:
           channel: 'stable'
 
-      # प्रोजेक्ट सेटअप और इंटरनेट परमिशन
+      # प्रोजेक्ट सेटअप
       - name: Create Project Structure
         run: |
           flutter create . --platforms android,web
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' android/app/src/main/AndroidManifest.xml
 
-      # आपकी HTML फाइलों को सही जगह (web फोल्डर) में डालना और बेस-लिंक ठीक करना
-      - name: Sync Your HTML Files
-        run: |
-          mkdir -p web
-          cp index.html web/index.html || true
-          cp owner.html web/owner.html || true
-          cp Owner.html web/owner.html || true
-          # बेस-लिंक को आटोमेटिक ठीक करना ताकि एरर न आए
-          sed -i 's|<base href=".*">|<base href="/school-management-app1/">|g' web/index.html || true
-
       - name: Get Dependencies
         run: flutter pub get
 
+      # APK बनाना
       - name: Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
@@ -55,8 +46,16 @@ jobs:
           name: SchoolSphere-APK
           path: build/app/outputs/flutter-apk/app-release.apk
 
+      # वेबसाइट बनाना (यह सबसे जरूरी हिस्सा है)
       - name: Build Web
-        run: flutter build web --base-href "/school-management-app1/"
+        run: |
+          # आपकी index.html को web फोल्डर में जबरदस्ती डालना
+          cp index.html web/index.html || true
+          cp owner.html web/owner.html || true
+          cp Owner.html web/owner.html || true
+          # बेस-लिंक को यहाँ सीधे फिक्स करना
+          sed -i 's|<base href=".*">|<base href="/school-management-app1/">|g' web/index.html
+          flutter build web --base-href "/school-management-app1/"
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
