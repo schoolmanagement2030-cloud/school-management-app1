@@ -1,4 +1,4 @@
-name: SchoolSphere Auto Deploy
+namname: SchoolSphere Auto Deploy
 
 on:
   push:
@@ -21,8 +21,13 @@ jobs:
         with:
           channel: 'stable'
 
+      # यह कमांड चेक करेगा कि फाइलें कहाँ हैं (Error ढूंढने के लिए)
+      - name: List Files
+        run: ls -R
+
       - name: Get Dependencies
         run: flutter pub get
+        # अगर आपकी फाइलें अभी भी किसी फोल्डर में हैं, तो यहाँ 'working-directory: फोल्डर_का_नाम' जोड़ें
 
       - name: Build Web
         run: flutter build web --base-href "/school-management-app1/"
