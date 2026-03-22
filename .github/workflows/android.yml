@@ -21,19 +21,14 @@ jobs:
         with:
           channel: 'stable'
 
-      # 1. Dependencies यहाँ से उठाएगा (Path check)
       - name: Get Dependencies
         run: flutter pub get
-        working-directory: app/src/main 
 
-      # 2. Web बिल्ड आपकी लिंक के साथ
       - name: Build Web
         run: flutter build web --base-href "/school-management-app1/"
-        working-directory: app/src/main
 
-      # 3. बिल्ड होने के बाद फाइल यहाँ से उठाएगा
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: app/src/main/build/web 
+          folder: build/web 
           branch: gh-pages
