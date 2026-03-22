@@ -2,103 +2,93 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SchoolSphere - Login</title>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
 <style>
-:root{
-    --gold:#ffd700;
-    --error:#ff4d4d;
+:root { --gold:#ffd700; --error:#ff4d4d; --glass: rgba(255,255,255,0.1); }
+
+body {
+    margin:0; font-family:'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    color:white; text-align:center; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
 }
 
-body{
-    margin:0;
-    font-family:sans-serif;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+.app-name { font-size:40px; font-weight:800; color:var(--gold); margin-bottom:5px; }
+.tagline { font-size:14px; margin-bottom:30px; color:#ccc; }
+
+.input-group {
+    width:100%; display:flex; flex-direction:column;
+    align-items:center; gap:15px; margin-bottom:25px;
 }
 
-.box{
-    width:90%;
-    max-width:400px;
-    background:rgba(0,0,0,0.3);
-    padding:25px;
-    border-radius:20px;
-    text-align:center;
+input {
+    padding:15px; border-radius:30px; border:2px solid var(--gold);
+    width:80%; max-width:300px; text-align:center;
+    background: var(--glass); color:white; outline:none;
 }
 
-h1{color:var(--gold);}
-
-input{
-    width:90%;
-    padding:12px;
-    margin:8px 0;
-    border-radius:25px;
-    border:2px solid var(--gold);
-    background:transparent;
-    color:white;
-    text-align:center;
-}
-
-.role-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:10px;
-}
-
-.role{
-    padding:12px;
-    border:none;
-    border-radius:12px;
+#error-msg {
+    color:var(--error);
+    margin-bottom:15px;
     font-weight:bold;
-    color:white;
+    min-height:20px;
 }
 
-.owner{background:#6a11cb;grid-column:span 2;}
-.principal{background:#2575fc;}
-.teacher{background:#11998e;}
-.accountant{background:#f2994a;}
-.driver{background:#f093fb;}
-.parent{background:#373b44;grid-column:span 2;}
+#loader {
+    display:none;
+    margin-bottom:15px;
+    color:var(--gold);
+}
 
-#error{color:var(--error);margin-top:10px;}
-#loader{display:none;margin-top:10px;}
+.role-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:12px; width:90%; max-width:400px;
+}
+
+.role {
+    padding:15px; border-radius:15px;
+    cursor:pointer; font-weight:bold; border:none; color:white;
+    transition:0.3s;
+}
+
+.role:active { transform: scale(0.95); }
+
+.owner { background:#6a11cb; grid-column:span 2; }
+.principal { background:#2575fc; }
+.accountant { background:#f2994a; }
+.teacher { background:#11998e; }
+.driver { background:#f093fb; }
+.parent { background:#373b44; grid-column:span 2; }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<h1 class="app-name">SchoolSphere</h1>
+<p class="tagline">Empowering Education Digitally</p>
 
-<h1>SchoolSphere</h1>
-
-<input type="text" id="school" placeholder="School ID">
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="pass" placeholder="Password">
-
-<div id="error"></div>
-<div id="loader">⏳ Checking...</div>
-
-<div class="role-grid">
-<button class="role owner" onclick="login('owner')">Owner</button>
-<button class="role principal" onclick="login('principal')">Principal</button>
-<button class="role teacher" onclick="login('teacher')">Teacher</button>
-<button class="role accountant" onclick="login('accountant')">Accountant</button>
-<button class="role driver" onclick="login('driver')">Driver</button>
-<button class="role parent" onclick="login('parent')">Parent</button>
+<div class="input-group">
+    <input type="text" id="school-id" placeholder="स्कूल आईडी (e.g. RJ01)">
+    <input type="email" id="email" placeholder="ईमेल">
+    <input type="password" id="password" placeholder="पासवर्ड">
 </div>
 
+<div id="error-msg"></div>
+<div id="loader">⏳ कृपया प्रतीक्षा करें...</div>
+
+<div class="role-grid">
+    <button class="role owner" onclick="login('owner')">Owner</button>
+    <button class="role principal" onclick="login('principal')">Principal</button>
+    <button class="role accountant" onclick="login('accountant')">Accountant</button>
+    <button class="role teacher" onclick="login('teacher')">Teacher</button>
+    <button class="role driver" onclick="login('driver')">Driver</button>
+    <button class="role parent" onclick="login('parent')">Parent</button>
 </div>
 
 <script>
@@ -107,64 +97,114 @@ input{
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_DOMAIN",
-    databaseURL: "YOUR_DB_URL",
-    projectId: "YOUR_ID"
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID"
 };
 
-firebase.initializeApp(firebaseConfig);
+// ✅ SAFE INIT
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 const db = firebase.database();
+const auth = firebase.auth();
 
 // 🔠 AUTO UPPERCASE
-document.getElementById("school").addEventListener("input",function(){
+document.getElementById("school-id").addEventListener("input", function(){
     this.value = this.value.toUpperCase();
 });
 
-// 🚀 LOGIN FUNCTION
+// 🔑 ENTER LOGIN
+document.getElementById("password").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        login("owner");
+    }
+});
+
+// 🌐 NETWORK STATUS
+window.addEventListener("offline", ()=> showError("📡 इंटरनेट नहीं है"));
+window.addEventListener("online", ()=> showError(""));
+
+// ❌ ERROR
+function showError(msg){
+    document.getElementById("error-msg").innerText = msg;
+}
+
+// ⏳ LOADER
+function showLoader(v){
+    document.getElementById("loader").style.display = v ? "block" : "none";
+}
+
+// 🔐 LOGIN
 async function login(role){
 
-    const school = document.getElementById("school").value.trim();
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("pass").value;
-    const error = document.getElementById("error");
-    const loader = document.getElementById("loader");
+    if(!navigator.onLine) return showError("📡 इंटरनेट नहीं है");
 
-    if(!navigator.onLine){
-        return error.innerText="📡 No Internet";
+    const school = document.getElementById("school-id").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if(!school || !email || !password){
+        return showError("⚠️ सभी जानकारी भरें");
     }
 
-    if(!school || !email || !pass){
-        return error.innerText="Fill all fields";
-    }
+    showLoader(true);
+    showError("");
 
-    error.innerText="";
-    loader.style.display="block";
-
-    try{
-        const userCred = await firebase.auth().signInWithEmailAndPassword(email, pass);
+    try {
+        const userCred = await auth.signInWithEmailAndPassword(email, password);
         const uid = userCred.user.uid;
 
-        // 🔒 OWNER CHECK
-        const snap = await db.ref("schools/"+school+"/ownerId").once("value");
+        // 🔍 ROLE CHECK
+        const snap = await db.ref(`schools/${school}/users/${uid}/role`).once("value");
+        const dbRole = snap.val();
 
-        if(role==="owner" && snap.val()!==uid){
-            loader.style.display="none";
-            return error.innerText="Not Owner of this school";
+        if(!dbRole || dbRole !== role){
+            await auth.signOut();
+            showLoader(false);
+            return showError("❌ इस रोल के लिए अनुमति नहीं है");
         }
 
-        // 👉 save session
-        localStorage.setItem("school", school);
-        localStorage.setItem("role", role);
+        // 💾 SAVE SESSION
+        localStorage.setItem("activeSchool", school);
+        localStorage.setItem("userRole", role);
+        localStorage.setItem("uid", uid);
 
-        // 🔄 redirect
         window.location.href = role + "_dashboard.html";
 
-    }catch(e){
-        error.innerText="Login Failed";
+    } catch(e) {
         console.error(e);
+
+        if(e.code === "auth/user-not-found"){
+            showError("❌ यूज़र नहीं मिला");
+        } else if(e.code === "auth/wrong-password"){
+            showError("❌ गलत पासवर्ड");
+        } else if(e.code === "auth/invalid-email"){
+            showError("❌ गलत ईमेल");
+        } else {
+            showError("❌ लॉगिन फेल");
+        }
     }
 
-    loader.style.display="none";
+    showLoader(false);
 }
+
+// 🔒 SESSION CHECK
+auth.onAuthStateChanged(user => {
+    if(!user){
+        localStorage.clear();
+    }
+});
+
+// 🔁 AUTO LOGIN
+window.onload = function(){
+    const school = localStorage.getItem("activeSchool");
+    const role = localStorage.getItem("userRole");
+
+    if(school && role){
+        window.location.href = role + "_dashboard.html";
+    }
+};
 
 </script>
 
