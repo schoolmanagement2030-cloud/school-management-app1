@@ -3,7 +3,7 @@ name: SchoolSphere Auto Deploy
 on:
   push:
     branches:
-      - main
+      - main  # जब भी आप main branch में push करेंगे
 
 permissions:
   contents: write
@@ -21,17 +21,14 @@ jobs:
         with:
           channel: 'stable'
 
-      # यहाँ हमने बताया है कि Flutter प्रोजेक्ट 'app/src/main' के अंदर है
       - name: Get Dependencies
         run: flutter pub get
-        working-directory: app/src/main 
 
       - name: Build Web
         run: flutter build web --base-href "/school-management-app1/"
-        working-directory: app/src/main
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: app/src/main/build/web # बिल्ड फोल्डर का सही रास्ता
+          folder: build/web
           branch: gh-pages
