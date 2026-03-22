@@ -5,38 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SchoolSphere - Login</title>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <style>
 :root { 
     --gold: #FFD54F; 
-    --bg-dark: #1A2E35;
 }
 
 body {
-    margin:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin:0; font-family:'Segoe UI', sans-serif;
     background: radial-gradient(circle at center, #2c5364, #203a43, #0f2027);
     color:white; text-align:center; min-height:100vh;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    overflow: hidden;
+}
+
+/* Logo Styling */
+.logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 10px;
 }
 
 .app-name { 
-    font-size: 52px; 
+    font-size: 48px; 
     font-weight: 900; 
     color: var(--gold); 
     margin-bottom: 2px; 
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }
 
 .tagline { 
     font-size: 14px; 
-    margin-bottom: 50px; 
+    margin-bottom: 40px; 
     color: #BDC3C7; 
     text-transform: uppercase; 
-    letter-spacing: 2.5px; 
-    font-weight: 500;
+    letter-spacing: 2px; 
 }
 
-/* Role Grid Layout */
+/* Buttons Grid */
 .role-grid {
     display: grid; 
     grid-template-columns: 1fr 1fr;
@@ -53,80 +60,100 @@ body {
     border: none; 
     color: white;
     font-size: 18px;
-    transition: all 0.3s ease;
+    transition: 0.3s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 8px;
     box-shadow: 0 6px 15px rgba(0,0,0,0.4);
 }
 
-.role:active { transform: scale(0.92); opacity: 0.9; }
+.role:active { transform: scale(0.92); }
 
-/* Gradients exactly like your screenshot */
-.owner { 
-    background: linear-gradient(135deg, #8E24AA, #651FFF); 
-    grid-column: span 2; 
-}
+/* Gradients from your image */
+.owner { background: linear-gradient(135deg, #8E24AA, #651FFF); grid-column: span 2; }
 .principal { background: linear-gradient(135deg, #2196F3, #00BCD4); }
 .accountant { background: linear-gradient(135deg, #FFA000, #FFCC80); }
 .teacher { background: linear-gradient(135deg, #00C853, #69F0AE); }
 .driver { background: linear-gradient(135deg, #E91E63, #FF80AB); }
-.parent { 
-    background: linear-gradient(135deg, #EF5350, #FFAB91); 
-    grid-column: span 2; 
-}
+.parent { background: linear-gradient(135deg, #EF5350, #FFAB91); grid-column: span 2; }
 
-/* Icons using Emoji for simplicity (Same as screenshot) */
-.icon { font-size: 32px; margin-bottom: 5px; }
+.icon { font-size: 30px; }
 
+/* Status Messages */
+#status-msg { margin-top: 15px; color: var(--gold); font-weight: bold; }
 </style>
 </head>
 
 <body>
 
+    <img src="logo.png" alt="SchoolSphere Logo" class="logo">
+    
     <h1 class="app-name">SchoolSphere</h1>
     <p class="tagline">THE DIGITAL SCHOOL HUB</p>
 
     <div class="role-grid">
         <button class="role owner" onclick="selectRole('owner')">
-            <span class="icon">👑</span>
-            Owner
+            <span class="icon">👑</span> Owner
         </button>
         
         <button class="role principal" onclick="selectRole('principal')">
-            <span class="icon">🏢</span>
-            Principal
+            <span class="icon">🏢</span> Principal
         </button>
         
         <button class="role accountant" onclick="selectRole('accountant')">
-            <span class="icon">💰</span>
-            Accountant
+            <span class="icon">💰</span> Accountant
         </button>
         
         <button class="role teacher" onclick="selectRole('teacher')">
-            <span class="icon">👨‍🏫</span>
-            Teacher
+            <span class="icon">👨‍🏫</span> Teacher
         </button>
         
         <button class="role driver" onclick="selectRole('driver')">
-            <span class="icon">🚌</span>
-            Driver
+            <span class="icon">🚌</span> Driver
         </button>
         
         <button class="role parent" onclick="selectRole('parent')">
-            <span class="icon">🎓</span>
-            Parent / Student
+            <span class="icon">🎓</span> Parent / Student
         </button>
     </div>
 
+    <div id="status-msg"></div>
+
 <script>
-    function selectRole(role) {
-        console.log("Selected Role: " + role);
-        // यहाँ क्लिक करने पर जो भी एक्शन लेना हो वो लिखें
-        // जैसे: window.location.href = role + "_login.html";
+// 🔥 Firebase Configuration (अपनी जानकारी यहाँ डालें)
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.database();
+
+function selectRole(role) {
+    document.getElementById("status-msg").innerText = role.toUpperCase() + " लॉगिन पेज पर जा रहे हैं...";
+    
+    // यहाँ आप अपनी ज़रूरत के हिसाब से पेज का नाम बदल सकते हैं
+    // उदाहरण के लिए: 
+    setTimeout(() => {
+        window.location.href = role + "_login.html"; 
+    }, 1000);
+}
+
+// ऑटो लॉगिन चेक (Session)
+window.onload = function() {
+    const savedRole = localStorage.getItem("userRole");
+    if(savedRole) {
+        console.log("Auto-login for: " + savedRole);
     }
+};
 </script>
 
 </body>
